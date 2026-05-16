@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sumatif By NOOR IRFAN</title>
+    <!-- Tailwind CSS untuk UI Premium -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Library QR Code Scanner -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body {
@@ -15,7 +17,7 @@
 </head>
 <body class="bg-gradient-to-br from-black via-slate-950 to-blue-950 min-h-screen text-white font-sans flex flex-col items-center justify-center p-4 overflow-hidden">
 
-    <!-- LOBBY/DASHBOARD UTAMA -->
+    <!-- 1. DASHBOARD UTAMA (TAMPILAN AWAL) -->
     <div id="dashboard" class="w-full max-w-md bg-black/50 backdrop-blur-lg border border-red-500/20 rounded-2xl p-6 shadow-2xl">
         <div class="text-center mb-6">
             <h1 class="text-3xl font-black tracking-widest bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">SUMATIF</h1>
@@ -58,7 +60,7 @@
         </div>
     </div>
 
-    <!-- TAMPILAN LOCKDOWN SAAT UJIAN -->
+    <!-- 2. TAMPILAN LOCKDOWN SAAT UJIAN -->
     <div id="exam-frame-container" class="hidden fixed inset-0 bg-black z-50 flex flex-col w-screen h-screen">
         <div class="bg-slate-950 px-4 py-2 flex justify-between items-center border-b border-red-500/20">
             <span class="text-xs font-bold text-red-500 tracking-widest">⚠️ SUMATIF BY NOOR IRFAN</span>
@@ -70,32 +72,109 @@
         <iframe id="exam-iframe" src="" class="w-full flex-1 border-none bg-white"></iframe>
     </div>
 
-    <!-- MODAL POPUP JIKA SISWA SELESAI (MINTA TOKEN KELUAR) -->
+    <!-- 3. MODAL POPUP JIKA SISWA SELESAI (MINTA TOKEN KELUAR) -->
     <div id="token-keluar-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="w-full max-w-sm bg-slate-950 border border-blue-500/30 rounded-2xl p-6 text-center">
+        <div class="w-full max-w-sm bg-slate-950 border border-blue-500/30 rounded-2xl p-6 text-center shadow-2xl shadow-blue-500/10">
+            <div class="w-12 h-12 bg-blue-600/10 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-500/30 text-xl font-bold">✓</div>
             <h3 class="text-lg font-bold text-blue-400 mb-2">Konfirmasi Selesai Ujian</h3>
             <p class="text-xs text-gray-400 mb-4">Silakan panggil Pengawas Ruangan untuk memasukkan <b>Token Keluar</b> agar lembar ujian Anda tersimpan.</p>
             <input type="text" id="inputTokenKeluar" placeholder="TOKEN KELUAR" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-center text-sm font-mono tracking-widest uppercase text-blue-400 focus:outline-none focus:border-blue-500 mb-4">
             <div class="flex gap-2">
                 <button onclick="document.getElementById('token-keluar-modal').classList.add('hidden')" class="flex-1 bg-slate-900 text-xs py-2.5 rounded-xl font-semibold text-gray-400">Kembali ke Soal</button>
-                <button onclick="verifikasiDanKeluar()" class="flex-1 bg-blue-600 text-xs py-2.5 rounded-xl font-bold text-white shadow-lg">Keluar Aplikasi</button>
+                <button onclick="verifikasiDanKeluar()" class="flex-1 bg-blue-600 text-xs py-2.5 rounded-xl font-bold text-white shadow-lg shadow-blue-600/20">Keluar Aplikasi</button>
             </div>
         </div>
     </div>
 
+    <!-- 4. MODAL POPUP DYNAMIC UTAMA (MENGGANTIKAN ALERT BIASA) -->
+    <div id="custom-alert" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in">
+        <div id="alert-box" class="w-full max-w-sm bg-slate-950 border rounded-2xl p-6 text-center shadow-2xl transition-all scale-95 duration-200">
+            <!-- Icon Dynamic Container -->
+            <div id="alert-icon" class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black"></div>
+            <!-- Title -->
+            <h3 id="alert-title" class="text-lg font-extrabold mb-2 tracking-wide"></h3>
+            <!-- Message -->
+            <p id="alert-message" class="text-xs text-gray-400 leading-relaxed mb-5"></p>
+            <!-- Button -->
+            <button id="alert-btn" onclick="closeCustomAlert()" class="w-full text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md active:scale-95"></button>
+        </div>
+    </div>
+
+
+    <!-- SCRIPT UTAMA & ENGINE LOGIC -->
     <script>
-        // ⚠️ GANTI TEKS DI BAWAH INI DENGAN URL WEB APP APPS SCRIPT ANDA!
+        // ⚠️ MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlO-LPrNyAlwjL5IM-0MyPpV2ZXpWspssQ3hXSXSijuzcNS_EdYtv4AJ_6ZAnNENnCbw/exec";
 
         let html5QrcodeScanner;
         let violationCounter = 0;
         let touchTimer;
         let targetExamUrl = "";
+        let onAlertCloseCallback = null;
 
-        // VALIDASI TOKEN LEWAT SPREADSHEET VIA API
+        // FUNGSI POPUP CUSTOM PREMIUM (PENGGANTI ALERT)
+        function tampilkanPopup(tipe, judul, pesan, textTombol, callback = null) {
+            const alertModal = document.getElementById('custom-alert');
+            const alertBox = document.getElementById('alert-box');
+            const alertIcon = document.getElementById('alert-icon');
+            const alertTitle = document.getElementById('alert-title');
+            const alertMessage = document.getElementById('alert-message');
+            const alertBtn = document.getElementById('alert-btn');
+
+            onAlertCloseCallback = callback;
+
+            // Reset Class Default
+            alertBox.className = "w-full max-w-sm bg-slate-950 border rounded-2xl p-6 text-center shadow-2xl transform scale-100 transition-all";
+            alertIcon.className = "w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black border";
+
+            // Konfigurasi visual berdasarkan tipe popup
+            if (tipe === "warning") { // Peringatan input kosong / salah ketik
+                alertBox.classList.add('border-amber-500/40', 'shadow-amber-500/5');
+                alertIcon.classList.add('bg-amber-500/10', 'text-amber-500', 'border-amber-500/30');
+                alertIcon.innerHTML = "⚠️";
+                alertTitle.className = "text-lg font-extrabold mb-2 tracking-wide text-amber-400";
+                alertBtn.className = "w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-amber-600/20";
+            } else if (tipe === "danger") { // Kecurangan / Blokir sistem
+                alertBox.classList.add('border-red-500/40', 'shadow-red-500/10');
+                alertIcon.classList.add('bg-red-500/10', 'text-red-500', 'border-red-500/30');
+                alertIcon.innerHTML = "🚨";
+                alertTitle.className = "text-lg font-extrabold mb-2 tracking-wide text-red-500";
+                alertBtn.className = "w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-red-600/20";
+            } else if (tipe === "success") { // Sukses validasi token / selesai
+                alertBox.classList.add('border-emerald-500/40', 'shadow-emerald-500/5');
+                alertIcon.classList.add('bg-emerald-500/10', 'text-emerald-500', 'border-emerald-500/30');
+                alertIcon.innerHTML = "✓";
+                alertTitle.className = "text-lg font-extrabold mb-2 tracking-wide text-emerald-400";
+                alertBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/20";
+            } else { // Loading / Informasi umum
+                alertBox.classList.add('border-blue-500/40', 'shadow-blue-500/5');
+                alertIcon.classList.add('bg-blue-500/10', 'text-blue-500', 'border-blue-500/30');
+                alertIcon.innerHTML = "ℹ️";
+                alertTitle.className = "text-lg font-extrabold mb-2 tracking-wide text-blue-400";
+                alertBtn.className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all";
+            }
+
+            // Isi Konten
+            alertTitle.innerText = judul;
+            alertMessage.innerHTML = pesan;
+            alertBtn.innerText = textTombol;
+
+            // Tampilkan Modal
+            alertModal.classList.remove('hidden');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('custom-alert').classList.add('hidden');
+            if (onAlertCloseCallback) {
+                onAlertCloseCallback();
+                onAlertCloseCallback = null;
+            }
+        }
+
+        // PROSES CEK TOKEN SPREADSHEET VIA API
         async function cekTokenKeSpreadsheet(token, jenis) {
             if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("SALIN_URL_WEB_APP")) {
-                alert("Sistem Belum Siap. URL Apps Script belum dipasang oleh Admin!");
+                tampilkanPopup("danger", "Sistem Belum Siap", "URL Google Apps Script belum dipasang atau salah di konfigurasi file HTML oleh Admin.", "Mengerti");
                 return false;
             }
             try {
@@ -106,7 +185,7 @@
                 let hasil = await respon.json();
                 return hasil.success;
             } catch (e) {
-                alert("Gagal terhubung ke server database token. Periksa koneksi internet.");
+                tampilkanPopup("danger", "Koneksi Terputus", "Gagal menghubungi database server token.<br>Pastikan perangkat siswa tersambung ke Internet/Wi-Fi.", "Coba Lagi");
                 return false;
             }
         }
@@ -115,19 +194,28 @@
             const urlInput = document.getElementById('examUrl').value;
             const tokenInput = document.getElementById('inputTokenMasuk').value;
 
-            if (!urlInput || !tokenInput) {
-                alert("Harap isi Link GForm dan Token Masuk terlebih dahulu!");
+            // JIKA LUPA MENGISI FORM/TOKEN (POPUP MENARIK AKTIF)
+            if (!urlInput) {
+                tampilkanPopup("warning", "Link Ujian Kosong", "Oops! Kamu lupa memasukkan link Google Form soal ujian. Silakan isi terlebih dahulu atau lakukan scan QR.", "Isi Link Soal");
+                return;
+            }
+            if (!tokenInput) {
+                tampilkanPopup("warning", "Token Masuk Kosong", "Akses Ditolak! Kamu belum memasukkan kode Token Ujian. Silakan tanyakan kepada Pengawas Ruangan.", "Masukkan Token");
                 return;
             }
 
             targetExamUrl = urlInput;
-            alert("Sedang memverifikasi token ke spreadsheet, mohon tunggu...");
+            tampilkanPopup("info", "Memproses Data", "Sedang mencocokkan token kamu dengan database spreadsheet... Mohon tunggu sebentar.", "Harap Tunggu...");
             
             let isValid = await cekTokenKeSpreadsheet(tokenInput, "Masuk");
+            closeCustomAlert(); // Tutup loading popup
+
             if (isValid) {
-                launchExam(targetExamUrl);
+                tampilkanPopup("success", "Token Valid!", "Akses berhasil diverifikasi. Selamat mengerjakan ujian, utamakan kejujuran!", "Masuk Lembar Soal", () => {
+                    launchExam(targetExamUrl);
+                });
             } else {
-                alert("❌ TOKEN MASUK SALAH ATAU SUDAH EXPIRED!");
+                tampilkanPopup("danger", "Token Salah", "Kode token yang kamu masukkan salah atau sudah dinonaktifkan oleh pengawas. Periksa kembali huruf besar-kecilnya!", "Perbaiki Kode");
             }
         }
 
@@ -137,18 +225,23 @@
 
         async function verifikasiDanKeluar() {
             const tokenKeluar = document.getElementById('inputTokenKeluar').value;
-            if(!tokenKeluar) { alert("Token keluar harus diisi oleh pengawas!"); return; }
+            if(!tokenKeluar) { 
+                tampilkanPopup("warning", "Token Keluar Kosong", "Panggil pengawas ruangan untuk mengetikkan kode token keluar khusus agar sesi Anda berakhir.", "Panggil Pengawas"); 
+                return; 
+            }
 
             let isValid = await cekTokenKeSpreadsheet(tokenKeluar, "Keluar");
             if (isValid) {
-                alert("✅ Ujian Selesai Terverifikasi. Terima kasih!");
-                location.reload(); // Mengembalikan ke halaman login awal
+                document.getElementById('token-keluar-modal').classList.add('hidden');
+                tampilkanPopup("success", "Ujian Selesai!", "Sesi ujian Anda telah resmi ditutup dengan aman. Halaman akan dimuat ulang.", "Keluar Aplikasi", () => {
+                    location.reload();
+                });
             } else {
-                alert("❌ TOKEN KELUAR SALAH! Hanya Pengawas yang tahu kode ini.");
+                tampilkanPopup("danger", "Token Salah", "Token keluar salah! Tindakan ini memerlukan kode otorisasi resmi milik pengawas ruangan.", "Coba Lagi");
             }
         }
 
-        // FUNGSI LAUNCHER & LOCKDOWN (SAMA SEPERTI SEBELUMNYA)
+        // FUNGSI LOCKDOWN & SECURITY ENGINE
         function launchExam(url) {
             if (!url.startsWith('http://') && !url.startsWith('https://')) { url = 'https://' + url; }
             document.getElementById('dashboard').classList.add('hidden');
@@ -165,13 +258,26 @@
         }
 
         function startSecuritySystem() {
-            document.addEventListener('visibilitychange', () => { if (document.hidden) executeViolation("Dilarang meminimalkan/pindah aplikasi!"); });
-            window.addEventListener('blur', () => { executeViolation("Aplikasi mendeteksi kehilangan fokus!"); });
-            document.addEventListener('contextmenu', (e) => e.preventDefault());
-            document.addEventListener('keydown', (e) => { if (e.ctrlKey || e.metaKey || e.keyCode === 123) { e.preventDefault(); executeViolation("Tombol kombinasi dilarang!"); } });
+            // Deteksi Ganti Aplikasi / Minimalkan Layar
+            document.addEventListener('visibilitychange', () => { if (document.hidden) executeViolation("Terdeteksi meminimalkan halaman atau membuka aplikasi lain!"); });
+            window.addEventListener('blur', () => { executeViolation("Aplikasi mendeteksi kehilangan fokus layar!"); });
+            
+            // Anti Keluar Fullscreen Paksa
+            const exitHandler = () => {
+                const frame = document.getElementById('exam-frame-container');
+                if (!document.fullscreenElement && !document.webkitFullscreenElement && !frame.classList.contains('hidden')) {
+                    tampilkanPopup("danger", "PELANGGARAN BERAT", "Anda sengaja keluar dari MODE FULLSCREEN!<br>Akses lembar ujian Anda diblokir otomatis.", "Kembali ke Awal", () => { location.reload(); });
+                }
+            };
+            document.addEventListener('fullscreenchange', exitHandler);
+            document.addEventListener('webkitfullscreenchange', exitHandler);
 
-            // Anti Long Press 3 Detik
-            const lpStart = () => { touchTimer = setTimeout(() => { executeViolation("Pelanggaran! Menekan layar >3 detik (Terdeteksi Copy)."); }, 3000); };
+            // Blokir Klik Kanan & Kombinasi Keyboard
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            document.addEventListener('keydown', (e) => { if (e.ctrlKey || e.metaKey || e.keyCode === 123) { e.preventDefault(); executeViolation("Penggunaan tombol shortcut/kombinasi dilarang!"); } });
+
+            // Anti Long Press 3 Detik (Deteksi Tahan Layar untuk Copy)
+            const lpStart = () => { touchTimer = setTimeout(() => { executeViolation("Menekan layar terlalu lama (>3 detik) terindikasi mencoba menyalin teks soal."); }, 3000); };
             const lpEnd = () => { clearTimeout(touchTimer); };
             window.addEventListener('touchstart', lpStart, { passive: true }); window.addEventListener('touchend', lpEnd); window.addEventListener('touchmove', lpEnd);
             window.addEventListener('mousedown', lpStart); window.addEventListener('mouseup', lpEnd); window.addEventListener('mousemove', lpEnd);
@@ -181,11 +287,13 @@
             violationCounter++;
             document.getElementById('violation-count').innerText = `Pelanggaran: ${violationCounter} / 3`;
             forceFullscreen();
+
             if (violationCounter >= 3) {
-                alert("🚨 AKSES UTAMAMU DIBLOKIR KARENA 3X PELANGGARAN!");
-                location.reload();
+                tampilkanPopup("danger", "AKSES BLOKIR TOTAL", "Anda telah melanggar batas toleransi kecurangan sebanyak 3 kali.<br>Sistem mengunci akun Anda otomatis.", "Selesai", () => {
+                    location.reload();
+                });
             } else {
-                alert(`⚠️ PERINGATAN!\n\n${reason}\nKesempatan: ${3 - violationCounter}x lagi.`);
+                tampilkanPopup("danger", "Peringatan Kecurangan!", `${reason}<br><br><span class='text-red-400 font-bold'>Kesempatan tersisa: ${3 - violationCounter}x lagi!</span>`, "Saya Mengerti, Lanjutkan");
             }
         }
 
