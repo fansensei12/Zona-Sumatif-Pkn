@@ -31,10 +31,12 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-black via-gray-900 to-blue-950 text-gray-100 min-h-screen font-sans p-4 flex flex-col items-center justify-center overflow-hidden">
+<body id="main-body" class="bg-gradient-to-br from-black via-gray-900 to-blue-950 text-gray-100 min-h-screen font-sans p-4 flex flex-col items-center justify-start overflow-y-auto">
 
-    <div id="dashboard" class="w-full max-w-lg p-8 rounded-3xl glass-panel shadow-2xl border border-blue-900/40 my-auto">
-        <div class="text-center mb-8">
+    <div class="h-4 sm:h-12 w-full"></div>
+
+    <div id="dashboard" class="w-full max-w-lg p-6 sm:p-8 rounded-3xl glass-panel shadow-2xl border border-blue-900/40 my-auto">
+        <div class="text-center mb-6">
             <p class="text-xs uppercase tracking-widest text-blue-400 font-bold mb-1">Portal PKn Spensev</p>
             <h1 class="text-3xl font-black bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent tracking-tight">
                 Sumatif By NOOR IRFAN
@@ -43,7 +45,7 @@
             <div class="h-[3px] w-16 bg-gradient-to-r from-red-500 to-blue-500 mx-auto mt-4 rounded-full"></div>
         </div>
 
-        <div class="space-y-5">
+        <div class="space-y-4">
             <div>
                 <label for="gformUrl" class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">1. LINK GOOGLE FORM SOAL</label>
                 <input type="url" id="gformUrl" placeholder="https://docs.google.com/forms/..." 
@@ -60,7 +62,7 @@
                 Mulai Ujian Aman
             </button>
 
-            <div class="relative py-2 flex items-center">
+            <div class="relative py-1 flex items-center">
                 <div class="flex-grow border-t border-gray-800"></div>
                 <span class="flex-shrink mx-4 text-[10px] text-gray-600 uppercase font-bold tracking-widest">ATAU SCAN QR SOAL</span>
                 <div class="flex-grow border-t border-gray-800"></div>
@@ -71,27 +73,35 @@
                 Buka Kamera Scan QR Code
             </button>
 
-            <div id="scanner-container" class="hidden border border-gray-800 rounded-2xl overflow-hidden bg-black p-4 space-y-3 animate-popup">
-                <div id="reader" class="w-full rounded-xl overflow-hidden"></div>
+            <div id="scanner-container" class="hidden border border-gray-800 rounded-2xl overflow-hidden bg-black p-3 space-y-3 animate-popup">
+                <div id="reader" class="w-full rounded-xl overflow-hidden max-h-[260px] bg-neutral-950"></div>
                 
                 <div class="flex gap-2 justify-center">
-                    <button onclick="switchCamera('environment')" id="btn-cam-back" class="flex-1 py-2 px-3 bg-blue-600 text-[11px] font-bold text-white rounded-lg transition active:scale-95">
+                    <button onclick="switchCamera('environment')" id="btn-cam-back" class="flex-1 py-2 px-2 bg-blue-600 text-[10px] font-bold text-white rounded-lg transition active:scale-95">
                         📷 Kamera Belakang
                     </button>
-                    <button onclick="switchCamera('user')" id="btn-cam-front" class="flex-1 py-2 px-3 bg-gray-800 text-[11px] font-semibold text-gray-400 rounded-lg transition active:scale-95">
+                    <button onclick="switchCamera('user')" id="btn-cam-front" class="flex-1 py-2 px-2 bg-gray-800 text-[10px] font-semibold text-gray-400 rounded-lg transition active:scale-95">
                         🤳 Kamera Depan
                     </button>
                 </div>
                 
-                <button onclick="closeScanner()" class="w-full bg-gray-950 text-[11px] py-2 rounded-xl text-gray-500 border border-gray-900 hover:bg-gray-900 transition">Tutup Kamera</button>
+                <button onclick="closeScanner()" class="w-full bg-gray-950 text-[11px] py-2 rounded-xl text-gray-500 border border-gray-900 hover:bg-gray-800 transition">Tutup Kamera</button>
             </div>
         </div>
     </div>
 
+    <div class="h-12 w-full"></div>
+
     <div id="exam-frame-container" class="hidden fixed inset-0 bg-black z-50 flex flex-col w-screen h-screen">
         <div class="bg-gray-950 px-4 py-2.5 flex justify-between items-center border-b border-red-500/20 shadow-md">
-            <span class="text-xs font-bold text-red-500 tracking-widest">⚠️ SUMATIF BY NOOR IRFAN - EXAM SHIELD v1.2</span>
-            <div class="flex items-center gap-3">
+            <span class="text-xs font-bold text-red-500 tracking-widest hidden sm:inline">⚠️ SUMATIF BY NOOR IRFAN</span>
+            
+            <div class="flex items-center gap-4 ml-auto sm:ml-0">
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-blue-400 font-mono font-bold text-xs shadow-inner">
+                    <svg class="w-3.5 h-3.5 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="live-clock">00:00:00</span>
+                </div>
+                
                 <span id="violation-count" class="text-[11px] bg-red-600/20 text-red-400 border border-red-500/40 px-3 py-1 rounded-full font-bold">Pelanggaran: 0 / 3</span>
                 <button onclick="bukaKunciKeluar()" class="text-[11px] bg-blue-600/20 text-blue-400 border border-blue-500/40 px-3 py-1 rounded-full font-black hover:bg-blue-600 hover:text-white transition active:scale-95">Selesai Ujian</button>
             </div>
@@ -142,8 +152,21 @@
         let touchTimer;
         let targetExamUrl = "";
         let onPopupCloseCallback = null;
+        let clockInterval;
 
-        // FUNGSI UTAMA POPUP NOTIFIKASI MODERN (MENGGANTIKAN WINDOW.ALERT)
+        function startLiveClock() {
+            const clockEl = document.getElementById('live-clock');
+            function updateClock() {
+                const now = new Date();
+                let jam = now.getHours().toString().padStart(2, '0');
+                let menit = now.getMinutes().toString().padStart(2, '0');
+                let detik = now.getSeconds().toString().padStart(2, '0');
+                clockEl.innerText = `${jam}:${menit}:${detik}`;
+            }
+            updateClock();
+            clockInterval = setInterval(updateClock, 1000);
+        }
+
         function jalankanPopup(tipe, tag, pesan, teksTombol, callback = null) {
             const overlay = document.getElementById('customPopupOverlay');
             const box = document.getElementById('popup-box');
@@ -156,16 +179,15 @@
             btnEl.innerText = teksTombol;
             tagEl.innerText = tag;
 
-            // Reset Tema Desain Popup Berdasarkan Kategori Kasus
-            if (tipe === "danger") { // Kasus Kecurangan / Blokir
+            if (tipe === "danger") {
                 box.className = "bg-gray-900 w-full max-w-sm rounded-3xl p-7 border-2 border-red-500 shadow-2xl shadow-red-900/30 animate-popup";
                 tagEl.className = "inline-flex items-center px-4 py-1.5 rounded-full bg-red-950 border border-red-500 text-red-400 font-black text-xs tracking-widest uppercase";
                 btnEl.className = "px-10 py-2.5 bg-red-600 hover:bg-red-500 text-white font-black rounded-full transition transform active:scale-95 text-xs";
-            } else if (tipe === "success") { // Kasus Sukses Token
+            } else if (tipe === "success") {
                 box.className = "bg-gray-900 w-full max-w-sm rounded-3xl p-7 border-2 border-emerald-500 shadow-2xl shadow-emerald-900/30 animate-popup";
                 tagEl.className = "inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-950 border border-emerald-500 text-emerald-400 font-black text-xs tracking-widest uppercase";
                 btnEl.className = "px-10 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full transition transform active:scale-95 text-xs";
-            } else { // Default Warning (Lupa isi kolom)
+            } else {
                 box.className = "bg-gray-900 w-full max-w-sm rounded-3xl p-7 border-2 border-amber-500 shadow-2xl shadow-amber-900/20 animate-popup";
                 tagEl.className = "inline-flex items-center px-4 py-1.5 rounded-full bg-amber-950 border border-amber-500 text-amber-300 font-black text-xs tracking-widest uppercase";
                 btnEl.className = "px-10 py-2.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-black rounded-full transition transform active:scale-95 text-xs";
@@ -182,7 +204,6 @@
             }
         }
 
-        // REQUEST KE DATABASE SPREADSHEET VIA API APPS SCRIPT
         async function cekTokenKeSpreadsheet(token, jenis) {
             if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("SALIN_URL_WEB_APP")) {
                 jalankanPopup("danger", "🚨 SERVER ERROR", "Link URL Google Apps Script belum dipasang pada kode HTML oleh pengembang/admin.", "Mengerti");
@@ -242,6 +263,7 @@
 
             let isValid = await cekTokenKeSpreadsheet(tokenKeluar, "Keluar");
             if (isValid) {
+                if(clockInterval) clearInterval(clockInterval);
                 document.getElementById('token-keluar-modal').classList.add('hidden');
                 jalankanPopup("success", "✓ SELESAI", "Sesi ujian Anda berhasil ditutup secara resmi. Halaman akan dimuat ulang.", "Keluar Aplikasi", () => {
                     location.reload();
@@ -251,13 +273,18 @@
             }
         }
 
-        // SISTEM LOCKDOWN & ENGINE UTAMA ANTI CONTEK
         function launchExam(url) {
             if (!url.startsWith('http://') && !url.startsWith('https://')) { url = 'https://' + url; }
+            
+            // Kunci scroll body saat masuk ujian agar exambro steril penuh
+            document.getElementById('main-body').className = "bg-black text-gray-100 min-h-screen font-sans overflow-hidden";
+            
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('exam-frame-container').classList.remove('hidden');
             document.getElementById('exam-iframe').src = url;
+            
             forceFullscreen();
+            startLiveClock();
             startSecurityProtocols();
         }
 
@@ -268,25 +295,22 @@
         }
 
         function startSecurityProtocols() {
-            // 1. Deteksi Ganti Tab / Buka Aplikasi Lain
             document.addEventListener('visibilitychange', () => { if (document.hidden) executeViolation("Mendeteksi aktivitas keluar dari tab/aplikasi ujian!"); });
             window.addEventListener('blur', () => { executeViolation("Aplikasi mendeteksi hilangnya fokus utama jendela ujian!"); });
             
-            // 2. Sistem Sanksi Auto-Kick Jika Keluar Dari Fullscreen
             const exitHandler = () => {
                 const frame = document.getElementById('exam-frame-container');
                 if (!document.fullscreenElement && !document.webkitFullscreenElement && !frame.classList.contains('hidden')) {
+                    if(clockInterval) clearInterval(clockInterval);
                     jalankanPopup("danger", "🚨 VIOLATION", "Anda memaksa keluar dari MODE FULLSCREEN!<br>Akses ditutup dan lembar soal dikunci.", "Keluar", () => { location.reload(); });
                 }
             };
             document.addEventListener('fullscreenchange', exitHandler);
             document.addEventListener('webkitfullscreenchange', exitHandler);
 
-            // 3. Matikan Klik Kanan & Shortcut keyboard pembantu contek
             document.addEventListener('contextmenu', (e) => e.preventDefault());
             document.addEventListener('keydown', (e) => { if (e.ctrlKey || e.metaKey || e.keyCode === 123) { e.preventDefault(); executeViolation("Tombol kombinasi pintasan diblokir sistem!"); } });
 
-            // 4. Deteksi Menekan Layar Lebih dari 3 Detik (Anti Long Press Copy Text)
             const lpStart = () => { touchTimer = setTimeout(() => { executeViolation("Menahan sentuhan layar terlalu lama (>3 detik) terindikasi mencoba menyalin teks soal."); }, 3000); };
             const lpEnd = () => { clearTimeout(touchTimer); };
             window.addEventListener('touchstart', lpStart, { passive: true }); window.addEventListener('touchend', lpEnd); window.addEventListener('touchmove', lpEnd);
@@ -299,6 +323,7 @@
             forceFullscreen();
 
             if (violationCounter >= 3) {
+                if(clockInterval) clearInterval(clockInterval);
                 jalankanPopup("danger", "🚨 BLOKIR TOTAL", "Anda telah mencapai batas maksimal 3 kali pelanggaran kecurangan.<br>Sesi ujian Anda dihentikan paksa.", "Selesai", () => {
                     location.reload();
                 });
@@ -307,18 +332,30 @@
             }
         }
 
-        // KONTROLLER UNIT KANDIDAT KAMERA SCANNER QR CODE
+        // KONTROLLER UNIT SCANNER QR CODE DENGAN FITUR OTO-SCROLL
         function openScanner() {
-            document.getElementById('scanner-container').classList.remove('hidden');
+            const container = document.getElementById('scanner-container');
+            container.classList.remove('hidden');
+            
             if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
             startCamera(currentFacingMode);
+            
+            // Perbaikan: Otomatis gulung layar dashboard ke bawah agar kamera terlihat penuh tanpa mentok bawah layar
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 300);
         }
 
         function startCamera(facingMode) {
-            html5QrCode.start({ facingMode: facingMode }, { fps: 10, qrbox: { width: 220, height: 220 } }, (txt) => {
-                document.getElementById('gformUrl').value = txt;
-                closeScanner();
-            }).catch(err => {
+            // Perbaikan: Mengunci batas maksimal tinggi kotak rendering kamera agar tidak memakan ruang layar berlebih
+            html5QrCode.start(
+                { facingMode: facingMode }, 
+                { fps: 15, qrbox: { width: 200, height: 200 } }, 
+                (txt) => {
+                    document.getElementById('gformUrl').value = txt;
+                    closeScanner();
+                }
+            ).catch(err => {
                 jalankanPopup("danger", "🚨 KAMERA ERROR", "Gagal memuat jenis kamera ini pada perangkat Anda. Coba ganti opsi ke kamera alternatif.", "Oke");
             });
         }
@@ -329,11 +366,11 @@
             const btnFront = document.getElementById('btn-cam-front');
             
             if (mode === 'environment') {
-                btnBack.className = "flex-1 py-2 px-3 bg-blue-600 text-[11px] font-bold text-white rounded-lg transition active:scale-95";
-                btnFront.className = "flex-1 py-2 px-3 bg-gray-800 text-[11px] font-semibold text-gray-400 rounded-lg transition active:scale-95";
+                btnBack.className = "flex-1 py-2 px-2 bg-blue-600 text-[10px] font-bold text-white rounded-lg transition active:scale-95";
+                btnFront.className = "flex-1 py-2 px-2 bg-gray-800 text-[10px] font-semibold text-gray-400 rounded-lg transition active:scale-95";
             } else {
-                btnBack.className = "flex-1 py-2 px-3 bg-gray-800 text-[11px] font-semibold text-gray-400 rounded-lg transition active:scale-95";
-                btnFront.className = "flex-1 py-2 px-3 bg-blue-600 text-[11px] font-bold text-white rounded-lg transition active:scale-95";
+                btnBack.className = "flex-1 py-2 px-2 bg-gray-800 text-[10px] font-semibold text-gray-400 rounded-lg transition active:scale-95";
+                btnFront.className = "flex-1 py-2 px-2 bg-blue-600 text-[10px] font-bold text-white rounded-lg transition active:scale-95";
             }
 
             if (html5QrCode && html5QrCode.isScanning) {
@@ -343,9 +380,13 @@
 
         function closeScanner() {
             if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => { document.getElementById('scanner-container').classList.add('hidden'); }).catch(err => console.error(err));
+                html5QrCode.stop().then(() => { 
+                    document.getElementById('scanner-container').classList.add('hidden'); 
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Kembalikan scroll ke atas
+                }).catch(err => console.error(err));
             } else {
                 document.getElementById('scanner-container').classList.add('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
     </script>
